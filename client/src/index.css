@@ -1,0 +1,5 @@
+/* Remove the browser's default margin so our application
+   can control the page layout from the beginning. */
+body {
+  margin: 0;
+}
