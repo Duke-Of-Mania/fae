@@ -154,6 +154,88 @@ export async function loginUser(req, res) {
   }
 }
 
+/*
+ * logoutUser
+ *
+ * This controller logs the user out by:
+ *
+ * 1. Reading the session token from the HTTP-only cookie.
+ * 2. Hashing the token so we can safely find the session
+ *    in PostgreSQL.
+ * 3. Deleting the matching session from the database.
+ * 4. Clearing the authentication cookie in the browser.
+ *
+ * Clearing both the database session and browser cookie
+ * ensures the authentication credential can no longer be used.
+ */
+export async function logoutUser(req, res) {
+  try {
+    // Read the raw session token from the authentication cookie.
+    const sessionToken = req.cookies.fae_session;
+
+    // If there is no cookie, there is no active session
+    // to delete. We still clear the cookie in case the browser
+    // has an expired or stale version.
+    if (!sessionToken) {
+      res.clearCookie("fae_session", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Logged out successfully.",
+      });
+    }
+
+    // Hash the raw session token using SHA-256.
+    // PostgreSQL stores this hash rather than the raw token.
+    const sessionTokenHash = crypto
+      .createHash("sha256")
+      .update(sessionToken)
+      .digest("hex");
+
+    // Delete the matching session from PostgreSQL.
+    // Once this row is deleted, the session token can no longer
+    // authenticate the user even if someone still possesses it.
+    await pool.query(
+      `
+        DELETE FROM appdata.sessions
+        WHERE session_token_hash = $1
+      `,
+      [sessionTokenHash]
+    );
+
+    // Remove the authentication cookie from the browser.
+    // The cookie options should match the options used when
+    // the cookie was originally created.
+    res.clearCookie("fae_session", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+
+    // Tell the client that logout completed successfully.
+    return res.status(200).json({
+      success: true,
+      message: "Logged out successfully.",
+    });
+  } catch (error) {
+    // Log the detailed error on the server.
+    // We don't expose database or implementation details
+    // to the client.
+    console.error("Logout error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "An unexpected server error occurred.",
+    });
+  }
+}
+
 // This function handles new user registration.
 // It validates the submitted information, hashes the password,
 // and stores the new account in PostgreSQL.

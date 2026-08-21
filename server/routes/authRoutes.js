@@ -4,7 +4,7 @@ import express from "express";
 // Import the login controller.
 // The controller contains the actual logic for processing
 // a login request.
-import { registerUser, loginUser } from "../controllers/authController.js";
+import { registerUser, loginUser, logoutUser } from "../controllers/authController.js";
 
 // Import authentication middleware.
 // This verifies the session cookie before allowing
@@ -22,6 +22,8 @@ router.post("/login", loginUser);
 // Handle POST requests to /register.
 // The controller creates the new user account.
 router.post("/register", registerUser);
+
+router.post("/logout", logoutUser);
 
 /*
  * GET /api/auth/me
@@ -48,7 +50,6 @@ router.get("/me", authenticateUser, (req, res) => {
     },
   });
 });
-
 
 // Export the router so server.js can attach it
 // to the main Express application.
