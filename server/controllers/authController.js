@@ -1,15 +1,5 @@
-// Import our PostgreSQL connection pool.
-// The pool allows this controller to communicate
-// with the PostgreSQL database.
 import pool from "../db/database.js";
-
-// Import Argon2.
-// We will use it to safely verify the user's password
-// against the password hash stored in PostgreSQL.
 import argon2 from "argon2";
-
-// Import Node's built-in cryptography module.
-// We use randomUUID() to generate unique user IDs.
 import crypto from "crypto";
 
 
@@ -75,6 +65,66 @@ export async function loginUser(req, res) {
         message: "Invalid email or password.",
       });
     }
+
+    // Generate a cryptographically secure random session token.
+    // This raw token will eventually be given to the browser
+    // through an HTTP-only cookie.
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+
+    // Hash the session token before storing it in PostgreSQL.
+    // The database therefore never contains the actual
+    // credential that the browser possesses.
+    const sessionTokenHash = crypto
+      .createHash("sha256")
+      .update(sessionToken)
+      .digest("hex");
+
+    // Create an expiration time seven days from now.
+    // We will move this value into environment configuration
+    // later so it can be changed without modifying code.
+    const expiresAt = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000
+    );
+
+    // Store the hashed session token in PostgreSQL.
+    await pool.query(
+      `
+        INSERT INTO appdata.sessions (
+          session_token_hash,
+          user_id,
+          expires_at
+        )
+        VALUES ($1, $2, $3)
+      `,
+      [
+        sessionTokenHash,
+        user.user_id,
+        expiresAt,
+      ]
+    );
+
+    // Send the raw session token to the browser as an HTTP-only cookie.
+    // HTTP-only prevents JavaScript running in the browser from
+    // reading the cookie, which helps protect the session from
+    // client-side script attacks.
+    res.cookie("fae_session", sessionToken, {
+      // Prevent browser JavaScript from accessing the cookie.
+      httpOnly: true,
+
+      // Only send the cookie over HTTPS in production.
+      // We keep this false during local HTTP development.
+      secure: process.env.NODE_ENV === "production",
+
+      // Prevent the browser from sending the cookie
+      // with most cross-site requests.
+      sameSite: "lax",
+
+      // Make the cookie expire when our server-side session expires.
+      expires: expiresAt,
+
+      // Make the cookie available to the entire application.
+      path: "/",
+    });
 
     // The credentials are valid.
     //

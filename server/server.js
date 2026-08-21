@@ -1,10 +1,11 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
-import pool from "./db/database.js";
 import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
+import pool from "./db/database.js";
 
 dotenv.config();
 
@@ -18,6 +19,10 @@ app.use(express.json());
 
 // Enable CORS so our frontend can communicate with the API.
 app.use(cors());
+
+// Enable cookie parsing so authentication middleware
+// can access cookies through req.cookies.
+app.use(cookieParser())
 
 // Attach authentication routes under /api/auth.
 // This means /login in authRoutes becomes
