@@ -4,6 +4,7 @@ import cors from "cors";
 import pool from "./db/database.js";
 import dotenv from "dotenv";
 
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -17,6 +18,11 @@ app.use(express.json());
 
 // Enable CORS so our frontend can communicate with the API.
 app.use(cors());
+
+// Attach authentication routes under /api/auth.
+// This means /login in authRoutes becomes
+// /api/auth/login in our application.
+app.use("/api/auth", authRoutes);
 
 
 // --------------------------------------------------
