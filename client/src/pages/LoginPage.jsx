@@ -8,6 +8,8 @@ import { Link } from "react-router-dom";
 // Import our shared page layout.
 import PageLayout from "../components/PageLayout";
 
+import { login } from "../services/api";
+
 // This component displays and manages the login form.
 function LoginPage() {
   // Store the email entered by the user.
@@ -25,26 +27,27 @@ function LoginPage() {
   const [error, setError] = useState("");
 
   // This function runs when the user submits the form.
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     // Prevent the browser from performing its normal
     // form submission, which would reload the page.
     event.preventDefault();
 
-    // Clear any previous error message.
-    setError("");
+    try {
+      // Send the login credentials to our Express API.
+      //
+      // The API handles password verification and creates
+      // the HTTP-only session cookie.
+      const data = await login(email, password);
 
-    // Check that the user entered an email address.
-    if (!email) {
-      setError("Please enter your email address.");
-      return;
+      // For now, display the successful API response.
+      // We'll replace this with application authentication
+      // state in a later step.
+      console.log("Login successful:", data);
+    } catch (error) {
+      // Display the error returned by our API helper.
+      console.error("Login failed:", error);
     }
-
-    // Check that the user entered a password.
-    if (!password) {
-      setError("Please enter your password.");
-      return;
-    }
-  }
+  };
 
   return (
     <PageLayout>

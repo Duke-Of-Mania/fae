@@ -11,17 +11,15 @@ dotenv.config();
 
 // Create the Express application.
 const app = express();
+const allowedOrigin = "http://localhost:5173"
 
-// Tell Express to automatically parse JSON request bodies.
-// This allows us to receive data such as:
-// { "email": "player@example.com", "password": "..." }
 app.use(express.json());
-
-// Enable CORS so our frontend can communicate with the API.
-app.use(cors());
-
-// Enable cookie parsing so authentication middleware
-// can access cookies through req.cookies.
+app.use(
+  cors({
+    origin: allowedOrigin,
+    credentials: true,
+})
+);
 app.use(cookieParser())
 
 // Attach authentication routes under /api/auth.
