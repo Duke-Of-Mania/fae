@@ -108,7 +108,9 @@ function CampaignDetail() {
         {roster.length === 0 && <p>No characters yet.</p>}
         <ul>
           {roster.map((character) => (
-            <li key={character.character_id}>{character.name}</li>
+            <li key={character.character_id}>
+              <Link to={`/app/characters/${character.character_id}`}>{character.name}</Link>
+            </li>
           ))}
         </ul>
       </section>

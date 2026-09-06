@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 import {
   createCharacter,
   getMyCharacters,
+  deleteCharacter,
   joinCampaign,
   leaveCampaign,
 } from "../services/characters";
@@ -16,6 +18,9 @@ function Characters() {
   const [error, setError] = useState("");
 
   const [name, setName] = useState("");
+  const [className, setClassName] = useState("");
+  const [ancestry, setAncestry] = useState("");
+  const [level, setLevel] = useState("1");
   const [inviteCodes, setInviteCodes] = useState({});
 
   async function refreshCharacters() {
@@ -42,8 +47,22 @@ function Characters() {
     setError("");
 
     try {
-      await createCharacter(name);
+      await createCharacter({ name, className, ancestry, level: level ? Number(level) : null });
       setName("");
+      setClassName("");
+      setAncestry("");
+      setLevel("1");
+      await refreshCharacters();
+    } catch (error) {
+      setError(error.message);
+    }
+  }
+
+  async function handleDelete(characterId) {
+    setError("");
+
+    try {
+      await deleteCharacter(characterId);
       await refreshCharacters();
     } catch (error) {
       setError(error.message);
@@ -93,6 +112,39 @@ function Characters() {
             />
           </div>
 
+          <div className="form-field">
+            <label htmlFor="className">Class</label>
+            <input
+              id="className"
+              type="text"
+              value={className}
+              placeholder="e.g. Wizard"
+              onChange={(event) => setClassName(event.target.value)}
+            />
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="ancestry">Ancestry</label>
+            <input
+              id="ancestry"
+              type="text"
+              value={ancestry}
+              placeholder="e.g. Elf"
+              onChange={(event) => setAncestry(event.target.value)}
+            />
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="level">Level</label>
+            <input
+              id="level"
+              type="number"
+              min="1"
+              value={level}
+              onChange={(event) => setLevel(event.target.value)}
+            />
+          </div>
+
           <button className="button button-primary" type="submit">
             Create Character
           </button>
@@ -109,7 +161,11 @@ function Characters() {
         <ul>
           {characters.map((character) => (
             <li key={character.character_id}>
-              <strong>{character.name}</strong>
+              <Link to={`/app/characters/${character.character_id}`}>
+                <strong>{character.name}</strong>
+              </Link>
+              {character.class_name && ` - ${character.class_name}`}
+              {` (Lvl ${character.level})`}
               {" "}
               {character.campaign_id ? (
                 <span>
@@ -136,6 +192,8 @@ function Characters() {
                   </button>
                 </span>
               )}
+              {" "}
+              <button type="button" onClick={() => handleDelete(character.character_id)}>Delete</button>
             </li>
           ))}
         </ul>

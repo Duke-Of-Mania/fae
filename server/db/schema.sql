@@ -50,19 +50,63 @@ CREATE TABLE IF NOT EXISTS appdata.campaigns (
 );
 
 -- --------------------------------------------------
--- CHARACTERS (Phase 2 of the Campaigns feature)
+-- CHARACTERS
 -- --------------------------------------------------
--- Deliberately minimal stub: just enough to hold a PC roster.
--- The full Characters feature (class/race/stats/etc.) extends this
--- table later. A character can be in at most one campaign at a
--- time (campaign_id is a single nullable FK, not a join table); one
--- person can still have multiple characters in the same campaign.
+-- A character can be in at most one campaign at a time (campaign_id
+-- is a single nullable FK, not a join table); one person can still
+-- have multiple characters in the same campaign.
+--
+-- Deliberately system-agnostic: class_name/ancestry are freeform
+-- text (not tied to any one ruleset), and ability-score-like or
+-- HP-like data lives in character_stats/character_resources below
+-- rather than as hardcoded D&D-specific columns.
 CREATE TABLE IF NOT EXISTS appdata.characters (
   character_id  UUID PRIMARY KEY,
   owner_user_id UUID NOT NULL REFERENCES appdata.users(user_id) ON DELETE CASCADE,
   campaign_id   UUID REFERENCES appdata.campaigns(campaign_id) ON DELETE SET NULL,
   name          VARCHAR(255) NOT NULL,
-  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  class_name    VARCHAR(255),
+  ancestry      VARCHAR(255),
+  level         INTEGER NOT NULL DEFAULT 1,
+  appearance    TEXT,
+  personality   TEXT,
+  backstory     TEXT,
+  notes         TEXT,
+  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Patches an already-live characters table in place (the CREATE
+-- TABLE IF NOT EXISTS above is a no-op once the table exists).
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS class_name  VARCHAR(255);
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS ancestry    VARCHAR(255);
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS level       INTEGER NOT NULL DEFAULT 1;
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS appearance  TEXT;
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS personality TEXT;
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS backstory   TEXT;
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS notes       TEXT;
+ALTER TABLE appdata.characters ADD COLUMN IF NOT EXISTS updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- Single-value named fields: ability scores, AC, speed, initiative,
+-- or anything another system calls a "stat". stat_value is TEXT
+-- (not numeric) so it stays system-agnostic (e.g. "15", "+2", "d8").
+CREATE TABLE IF NOT EXISTS appdata.character_stats (
+  character_id  UUID NOT NULL REFERENCES appdata.characters(character_id) ON DELETE CASCADE,
+  stat_name     VARCHAR(100) NOT NULL,
+  stat_value    VARCHAR(100),
+  sort_order    INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (character_id, stat_name)
+);
+
+-- Tracked current/max pools: HP, spell slots, ki points, sanity,
+-- whatever a system tracks that way.
+CREATE TABLE IF NOT EXISTS appdata.character_resources (
+  character_id    UUID NOT NULL REFERENCES appdata.characters(character_id) ON DELETE CASCADE,
+  resource_name   VARCHAR(100) NOT NULL,
+  current_value   INTEGER,
+  max_value       INTEGER,
+  sort_order      INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (character_id, resource_name)
 );
 
 -- --------------------------------------------------
