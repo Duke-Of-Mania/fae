@@ -1,97 +1,33 @@
 // Import the components we want to display as pages.
 import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 
 // Import the React Router components that allow us
 // to display different pages based on the browser URL.
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// Import React's useEffect hook.
-// useEffect lets us perform an API request when the
-// application first loads.
-import { useEffect, useState } from "react";
-
-// Import our API function for checking the current session.
-import { getCurrentUser, logout } from "./services/api.js";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import AppLayout from "./components/AppLayout.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
 
 
 // This component defines the application's page structure.
 // React Router uses the browser's URL to decide which
 // component should be displayed.
 function App() {
-  // Stores the currently authenticated user.
-  // null means that nobody is currently authenticated.
-  const [currentUser, setCurrentUser] = useState(null);
 
-  // Tracks whether we have finished checking the server
-  // to determine whether the user already has a valid session.
-  const [authLoading, setAuthLoading] = useState(true);
-  /*
-  * Check for an existing authenticated session when the
-  * application first loads.
-  *
-  * The browser automatically sends the HTTP-only fae_session
-  * cookie with this request because our API helper uses
-  * credentials: "include".
-  */
-  useEffect(() => {
-    /*
-    * Check the current authentication session when the
-    * application first loads.
-    */
-    async function checkAuthentication() {
-      try {
-        // Ask Express who is currently authenticated.
-        const data = await getCurrentUser();
-
-        // Display the authenticated user temporarily so
-        // we can verify that the API request worked.
-        console.log("Authenticated user:", data.user);
-
-        // Store the authenticated user in React state.
-        setCurrentUser(data.user);
-      } catch (error) {
-        // A failed request means there is no valid session.
-        console.log("No authenticated session.");
-
-        setCurrentUser(null);
-      } finally {
-        // The authentication check has finished.
-        setAuthLoading(false);
-      }
-    }
-
-    checkAuthentication();
-  }, []
-  );
+  // AuthContext already checks for an existing session
+  // (using the HTTP-only fae_session cookie) when the
+  // application first loads, so App just reads the result.
+  const { currentUser, authLoading, setCurrentUser, handleLogout } = useAuth();
 
   // Don't render the application until we've determined
   // whether the browser already has a valid session.
   if (authLoading) {
     return <p>Checking authentication...</p>;
   };
-
-  /*
-  * handleLogout
-  *
-  * This function asks the server to invalidate the current
-  * authentication session and then removes the user from
-  * React's authentication state.
-  */
-  async function handleLogout() {
-      try {
-        // Ask Express to invalidate the current server-side session.
-        await logout();
-
-        // Remove the user from React state.
-        // This causes the application to re-render as logged out.
-        setCurrentUser(null);
-      } catch (error) {
-        // For now, log the error so we can troubleshoot
-        // if the server-side logout fails.
-        console.error("Logout failed:", error);
-      }
-    };
 
   return (
     <BrowserRouter>
@@ -105,12 +41,38 @@ function App() {
           path="/login"
           element={
             currentUser ? (
-              <Navigate to="/" replace />
+              <Navigate to="/app" replace />
             ) : (
               <LoginPage setCurrentUser={setCurrentUser} />
             )
           }
         />
+
+        {/* Display RegisterPage when the user visits "/register". */}
+        <Route
+          path="/register"
+          element={
+            currentUser ? (
+              <Navigate to="/app" replace />
+            ) : (
+              <RegisterPage />
+            )
+          }
+        />
+
+        <Route 
+          path="/app"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            index
+            element={<Dashboard currentUser={currentUser}/>}
+          />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

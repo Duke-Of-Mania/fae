@@ -2,36 +2,26 @@
 // the values entered into our form fields.
 import { useState } from "react";
 
-// Import Link so the user can return to the landing page,
-// and useLocation to read the "just registered" flag passed
-// from RegisterPage.
-import { Link, useLocation } from "react-router-dom";
+// Import Link and useNavigate for navigation between pages.
+import { Link, useNavigate } from "react-router-dom";
 
 // Import our shared page layout.
 import PageLayout from "../components/PageLayout";
 
-import { login } from "../services/api";
+import { register } from "../services/api";
 
-// This component displays and manages the login form.
-function LoginPage({setCurrentUser}) {
-  // Store the email entered by the user.
-  // email contains the current value.
-  // setEmail changes the value of email.
+// This component displays and manages the account creation form.
+function RegisterPage() {
+  // Store the values entered by the user.
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-
-  // Store the password entered by the user.
-  // password contains the current value.
-  // setPassword changes the value of password.
   const [password, setPassword] = useState("");
 
   // Store an error message that we can display
-  // when the form contains invalid information.
+  // when registration fails.
   const [error, setError] = useState("");
 
-  // RegisterPage navigates here with justRegistered: true
-  // after a successful account creation.
-  const location = useLocation();
-  const justRegistered = location.state?.justRegistered;
+  const navigate = useNavigate();
 
   // This function runs when the user submits the form.
   async function handleSubmit(event) {
@@ -43,13 +33,13 @@ function LoginPage({setCurrentUser}) {
     setError("");
 
     try {
-      // Send the login credentials to our Express API.
+      // Send the new account's information to our Express API.
       //
-      // The API handles password verification and creates
-      // the HTTP-only session cookie.
-      const data = await login(email, password);
+      // Registration does not log the user in, so we send
+      // them to the login page afterward.
+      await register(username, email, password);
 
-      setCurrentUser(data.user)
+      navigate("/login", { state: { justRegistered: true } });
     } catch (error) {
       // Display the error returned by our API helper.
       setError(error.message);
@@ -61,19 +51,11 @@ function LoginPage({setCurrentUser}) {
       <section className="login-page">
         <div className="login-card">
 
-          <h1>Log In</h1>
+          <h1>Create Account</h1>
 
           <p>
-            Welcome back to FAE.
+            Join FAE to start building characters and campaigns.
           </p>
-
-          {/* Confirm to a newly registered user that their
-              account was created. */}
-          {justRegistered && !error && (
-            <p className="form-success">
-              Account created. Log in to continue.
-            </p>
-          )}
 
           {/* Display the error message when one exists. */}
           {error && (
@@ -84,6 +66,23 @@ function LoginPage({setCurrentUser}) {
 
           {/* handleSubmit runs when the user submits this form. */}
           <form onSubmit={handleSubmit}>
+
+            {/* Username field */}
+            <div className="form-field">
+              <label htmlFor="username">
+                Username
+              </label>
+
+              <input
+                id="username"
+                name="username"
+                type="text"
+                value={username}
+                placeholder="Choose a username"
+                onChange={(event) => setUsername(event.target.value)}
+                autoComplete="username"
+              />
+            </div>
 
             {/* Email field */}
             <div className="form-field">
@@ -113,18 +112,18 @@ function LoginPage({setCurrentUser}) {
                 name="password"
                 type="password"
                 value={password}
-                placeholder="Enter your password"
+                placeholder="Choose a password"
                 onChange={(event) => setPassword(event.target.value)}
-                autoComplete="current-password"
+                autoComplete="new-password"
               />
             </div>
 
-            {/* Submit the login form. */}
+            {/* Submit the registration form. */}
             <button
               className="button button-primary"
               type="submit"
             >
-              Log In
+              Create Account
             </button>
           </form>
 
@@ -140,5 +139,5 @@ function LoginPage({setCurrentUser}) {
 }
 
 // Export the component so React Router can display it
-// when the user visits /login.
-export default LoginPage;
+// when the user visits /register.
+export default RegisterPage;

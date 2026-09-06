@@ -11,7 +11,11 @@ dotenv.config();
 
 // Create the Express application.
 const app = express();
-const allowedOrigin = "http://192.168.1.15:5173"
+
+// The origin allowed to make cross-origin requests (the Vite dev server).
+// Set in .env so this doesn't have to be hardcoded, e.g. when the
+// machine's LAN IP changes.
+const allowedOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
 app.use(express.json());
 app.use(

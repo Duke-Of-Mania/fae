@@ -38,14 +38,13 @@ function LandingPage({ handleLogout }) {
             Log In
           </Link>
 
-          {/* Registration will be implemented later.
-              For now this link does not point anywhere. */}
-          <button
+          {/* Navigate to the registration page. */}
+          <Link
             className="button button-secondary"
-            type="button"
+            to="/register"
           >
             Create Account
-          </button>
+          </Link>
           {/* 
             Calls the logout function supplied by App.
             App handles the API request and authentication state.

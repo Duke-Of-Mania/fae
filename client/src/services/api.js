@@ -1,7 +1,7 @@
 // The base URL for our Express API.
-// Keeping this in one place means we don't have to repeat
-// "http://localhost:5000" throughout our React application.
-const API_BASE_URL = "http://192.168.1.15:5000/api";
+// Set via VITE_API_BASE_URL in .env so it doesn't have to be
+// hardcoded, e.g. when the machine's LAN IP changes.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /*
  * apiRequest
@@ -62,6 +62,24 @@ export async function login(email, password) {
 
     // Convert the JavaScript object into JSON for Express.
     body: JSON.stringify({
+      email,
+      password,
+    }),
+  });
+}
+
+/*
+ * register
+ *
+ * Sends a new account's username, email, and password to the
+ * Express registration endpoint. Does not log the user in;
+ * they still need to log in afterward.
+ */
+export async function register(username, email, password) {
+  return apiRequest("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({
+      username,
       email,
       password,
     }),

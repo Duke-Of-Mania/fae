@@ -215,6 +215,14 @@ a {
   color: #f0b9bf;
 }
 
+/* Style success confirmations, e.g. after registering. */
+.form-success {
+  padding: 0.75rem;
+  border: 1px solid #5f8c63;
+  border-radius: 4px;
+  color: #bcf0bf;
+}
+
 /* Make the login button span the card width. */
 .login-card .button {
   width: 100%;
