@@ -1,6 +1,10 @@
 // Import Express so we can create routes for authentication.
 import express from "express";
 
+// Import rate limiting so repeated failed login attempts
+// can't be used to brute-force a password.
+import rateLimit from "express-rate-limit";
+
 // Import the login controller.
 // The controller contains the actual logic for processing
 // a login request.
@@ -14,10 +18,24 @@ import { authenticateUser } from "../middleware/authenticate.js";
 // Create a router specifically for authentication routes.
 const router = express.Router();
 
+// Limit each IP address to 10 login attempts per 15 minutes.
+// This slows down password-guessing attacks without getting
+// in the way of normal usage.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Too many login attempts. Please try again later.",
+  },
+});
+
 // Handle POST requests to /login.
 // The controller will receive the request and process
 // the user's email and password.
-router.post("/login", loginUser);
+router.post("/login", loginLimiter, loginUser);
 
 // Handle POST requests to /register.
 // The controller creates the new user account.

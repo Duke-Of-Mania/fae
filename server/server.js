@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
 import pool from "./db/database.js";
+import { startSessionCleanup } from "./db/sessionCleanup.js";
 
 dotenv.config();
 
@@ -93,4 +94,8 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   // Print a message so we know the server successfully started.
   console.log(`FAE API running on port ${PORT}`);
+
+  // Periodically remove expired sessions from PostgreSQL so
+  // the sessions table doesn't grow forever.
+  startSessionCleanup();
 });
