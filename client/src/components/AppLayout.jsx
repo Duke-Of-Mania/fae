@@ -23,6 +23,8 @@ function AppLayout() {
 
           <Link to="/app/campaigns">Campaigns</Link>
 
+          <Link to="/app/characters">Characters</Link>
+
           <span>
             Logged in as {currentUser.username}
           </span>

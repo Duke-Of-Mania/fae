@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 
 import authRoutes from "./routes/authRoutes.js";
 import campaignRoutes from "./routes/campaignRoutes.js";
+import characterRoutes from "./routes/characterRoutes.js";
 import pool from "./db/database.js";
 import { startSessionCleanup } from "./db/sessionCleanup.js";
 
@@ -35,6 +36,9 @@ app.use("/api/auth", authRoutes);
 
 // Attach campaign routes under /api/campaigns.
 app.use("/api/campaigns", campaignRoutes);
+
+// Attach character routes under /api/characters.
+app.use("/api/characters", characterRoutes);
 
 
 // --------------------------------------------------

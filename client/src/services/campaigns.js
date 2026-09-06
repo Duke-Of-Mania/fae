@@ -31,6 +31,15 @@ export async function getCampaign(campaignId) {
 }
 
 /*
+ * getCampaignRoster
+ *
+ * Lists the characters on a campaign's roster.
+ */
+export async function getCampaignRoster(campaignId) {
+  return apiRequest(`/campaigns/${campaignId}/roster`);
+}
+
+/*
  * updateCampaign
  *
  * Updates a campaign's editable fields. Only the fields

@@ -98,7 +98,7 @@ function Campaigns() {
                 {campaign.name}
               </Link>
               {" "}
-              <span>({campaign.status})</span>
+              <span>({campaign.status}, {campaign.role === "gm" ? "GM" : "Player"})</span>
             </li>
           ))}
         </ul>

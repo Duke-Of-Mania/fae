@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Campaigns from "./pages/Campaigns.jsx";
 import CampaignDetail from "./pages/CampaignDetail.jsx";
+import Characters from "./pages/Characters.jsx";
 import AppLayout from "./components/AppLayout.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
@@ -77,6 +78,7 @@ function App() {
 
           <Route path="campaigns" element={<Campaigns />} />
           <Route path="campaigns/:campaignId" element={<CampaignDetail />} />
+          <Route path="characters" element={<Characters />} />
         </Route>
       </Routes>
     </BrowserRouter>

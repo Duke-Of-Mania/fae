@@ -48,3 +48,19 @@ CREATE TABLE IF NOT EXISTS appdata.campaigns (
   created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- --------------------------------------------------
+-- CHARACTERS (Phase 2 of the Campaigns feature)
+-- --------------------------------------------------
+-- Deliberately minimal stub: just enough to hold a PC roster.
+-- The full Characters feature (class/race/stats/etc.) extends this
+-- table later. A character can be in at most one campaign at a
+-- time (campaign_id is a single nullable FK, not a join table); one
+-- person can still have multiple characters in the same campaign.
+CREATE TABLE IF NOT EXISTS appdata.characters (
+  character_id  UUID PRIMARY KEY,
+  owner_user_id UUID NOT NULL REFERENCES appdata.users(user_id) ON DELETE CASCADE,
+  campaign_id   UUID REFERENCES appdata.campaigns(campaign_id) ON DELETE SET NULL,
+  name          VARCHAR(255) NOT NULL,
+  created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

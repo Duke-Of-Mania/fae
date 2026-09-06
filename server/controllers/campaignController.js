@@ -1,5 +1,6 @@
 import pool from "../db/database.js";
 import crypto from "crypto";
+import { getCampaignAccess } from "../db/campaignAccess.js";
 
 /*
  * generateInviteCode
@@ -65,20 +66,28 @@ export async function createCampaign(req, res) {
   }
 }
 
-// List every campaign owned by the current user.
+// List every campaign the current user can see: campaigns they GM,
+// plus campaigns where one of their characters is on the roster.
 export async function listCampaigns(req, res) {
   try {
     const result = await pool.query(
       `
-        SELECT
-          campaign_id,
-          name,
-          overview,
-          status,
-          created_at,
-          updated_at
-        FROM appdata.campaigns
-        WHERE owner_user_id = $1
+        (
+          SELECT
+            campaign_id, name, overview, status, created_at, updated_at,
+            'gm' AS role
+          FROM appdata.campaigns
+          WHERE owner_user_id = $1
+        )
+        UNION
+        (
+          SELECT
+            c.campaign_id, c.name, c.overview, c.status, c.created_at, c.updated_at,
+            'player' AS role
+          FROM appdata.campaigns c
+          JOIN appdata.characters ch ON ch.campaign_id = c.campaign_id
+          WHERE ch.owner_user_id = $1 AND c.owner_user_id != $1
+        )
         ORDER BY updated_at DESC
       `,
       [req.user.user_id]
@@ -97,10 +106,28 @@ export async function listCampaigns(req, res) {
   }
 }
 
-// Fetch a single campaign. Only the owning GM can view it in Phase 1.
+// Fetch a single campaign. The GM sees everything; a player (someone
+// with a character on the roster) gets read-only access and never
+// sees the invite code.
 export async function getCampaign(req, res) {
   try {
     const { campaignId } = req.params;
+
+    const access = await getCampaignAccess(campaignId, req.user.user_id);
+
+    if (!access.exists) {
+      return res.status(404).json({
+        success: false,
+        message: "Campaign not found.",
+      });
+    }
+
+    if (!access.role) {
+      return res.status(403).json({
+        success: false,
+        message: "You do not have access to this campaign.",
+      });
+    }
 
     const result = await pool.query(
       `
@@ -120,28 +147,63 @@ export async function getCampaign(req, res) {
       [campaignId]
     );
 
-    if (result.rows.length === 0) {
+    const campaign = result.rows[0];
+
+    if (access.role !== "gm") {
+      delete campaign.invite_code;
+    }
+
+    return res.status(200).json({
+      success: true,
+      campaign: { ...campaign, role: access.role },
+    });
+  } catch (error) {
+    console.error("Get campaign error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An unexpected server error occurred.",
+    });
+  }
+}
+
+// List the characters on a campaign's roster. Anyone with access
+// (GM or player) can see the roster.
+export async function getCampaignRoster(req, res) {
+  try {
+    const { campaignId } = req.params;
+
+    const access = await getCampaignAccess(campaignId, req.user.user_id);
+
+    if (!access.exists) {
       return res.status(404).json({
         success: false,
         message: "Campaign not found.",
       });
     }
 
-    const campaign = result.rows[0];
-
-    if (campaign.owner_user_id !== req.user.user_id) {
+    if (!access.role) {
       return res.status(403).json({
         success: false,
         message: "You do not have access to this campaign.",
       });
     }
 
+    const result = await pool.query(
+      `
+        SELECT character_id, name, owner_user_id, created_at
+        FROM appdata.characters
+        WHERE campaign_id = $1
+        ORDER BY created_at ASC
+      `,
+      [campaignId]
+    );
+
     return res.status(200).json({
       success: true,
-      campaign,
+      roster: result.rows,
     });
   } catch (error) {
-    console.error("Get campaign error:", error);
+    console.error("Get campaign roster error:", error);
     return res.status(500).json({
       success: false,
       message: "An unexpected server error occurred.",
@@ -155,19 +217,16 @@ export async function updateCampaign(req, res) {
     const { campaignId } = req.params;
     const { name = null, overview = null, worldOverview = null, status = null } = req.body;
 
-    const existing = await pool.query(
-      `SELECT owner_user_id FROM appdata.campaigns WHERE campaign_id = $1`,
-      [campaignId]
-    );
+    const access = await getCampaignAccess(campaignId, req.user.user_id);
 
-    if (existing.rows.length === 0) {
+    if (!access.exists) {
       return res.status(404).json({
         success: false,
         message: "Campaign not found.",
       });
     }
 
-    if (existing.rows[0].owner_user_id !== req.user.user_id) {
+    if (access.role !== "gm") {
       return res.status(403).json({
         success: false,
         message: "You do not have access to this campaign.",
@@ -216,19 +275,16 @@ export async function deleteCampaign(req, res) {
   try {
     const { campaignId } = req.params;
 
-    const existing = await pool.query(
-      `SELECT owner_user_id FROM appdata.campaigns WHERE campaign_id = $1`,
-      [campaignId]
-    );
+    const access = await getCampaignAccess(campaignId, req.user.user_id);
 
-    if (existing.rows.length === 0) {
+    if (!access.exists) {
       return res.status(404).json({
         success: false,
         message: "Campaign not found.",
       });
     }
 
-    if (existing.rows[0].owner_user_id !== req.user.user_id) {
+    if (access.role !== "gm") {
       return res.status(403).json({
         success: false,
         message: "You do not have access to this campaign.",
