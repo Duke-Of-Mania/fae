@@ -11,7 +11,7 @@ dotenv.config();
 
 // Create the Express application.
 const app = express();
-const allowedOrigin = "http://192.168.1.14:5173"
+const allowedOrigin = "http://192.168.1.15:5173"
 
 app.use(express.json());
 app.use(

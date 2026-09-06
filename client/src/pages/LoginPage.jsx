@@ -11,7 +11,7 @@ import PageLayout from "../components/PageLayout";
 import { login } from "../services/api";
 
 // This component displays and manages the login form.
-function LoginPage() {
+function LoginPage({setCurrentUser}) {
   // Store the email entered by the user.
   // email contains the current value.
   // setEmail changes the value of email.
@@ -38,6 +38,8 @@ function LoginPage() {
       // The API handles password verification and creates
       // the HTTP-only session cookie.
       const data = await login(email, password);
+
+      setCurrentUser(data.user)
 
       // For now, display the successful API response.
       // We'll replace this with application authentication

@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import PageLayout from "../components/PageLayout";
 
 // This component displays the main FAE landing page.
-function LandingPage() {
+function LandingPage({ handleLogout }) {
   return (
     <PageLayout>
       {/* Hero section introduces FAE to new visitors. */}
@@ -46,7 +46,13 @@ function LandingPage() {
           >
             Create Account
           </button>
-
+          {/* 
+            Calls the logout function supplied by App.
+            App handles the API request and authentication state.
+          */}
+          <button type="button" onClick={handleLogout}>
+            Logout
+          </button>
         </div>
       </section>
     </PageLayout>
