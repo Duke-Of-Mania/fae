@@ -9,6 +9,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
+import Campaigns from "./pages/Campaigns.jsx";
+import CampaignDetail from "./pages/CampaignDetail.jsx";
 import AppLayout from "./components/AppLayout.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
 
@@ -72,6 +74,9 @@ function App() {
             index
             element={<Dashboard currentUser={currentUser}/>}
           />
+
+          <Route path="campaigns" element={<Campaigns />} />
+          <Route path="campaigns/:campaignId" element={<CampaignDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>

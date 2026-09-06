@@ -21,6 +21,8 @@ function AppLayout() {
 
           <Link to="/app">Dashboard</Link>
 
+          <Link to="/app/campaigns">Campaigns</Link>
+
           <span>
             Logged in as {currentUser.username}
           </span>
