@@ -1,12 +1,12 @@
 function Dashboard({ currentUser }) {
   return (
-    <main>
+    <section className="panel">
       <h1>FAE Dashboard</h1>
 
       <p>
         Welcome, {currentUser.username}!
       </p>
-    </main>
+    </section>
   );
 }
 

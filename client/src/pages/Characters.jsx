@@ -92,12 +92,14 @@ function Characters() {
   }
 
   return (
-    <main>
-      <h1>Characters</h1>
+    <>
+      <div className="panel-header">
+        <h1>Characters</h1>
+      </div>
 
       {error && <p className="form-error">{error}</p>}
 
-      <section>
+      <section className="panel">
         <h2>New Character</h2>
 
         <form onSubmit={handleCreate}>
@@ -151,54 +153,60 @@ function Characters() {
         </form>
       </section>
 
-      <section>
+      <section className="panel">
         <h2>Your Characters</h2>
 
         {loading && <p>Loading characters...</p>}
 
-        {!loading && characters.length === 0 && <p>No characters yet.</p>}
+        {!loading && characters.length === 0 && <p className="entity-empty">No characters yet.</p>}
 
-        <ul>
+        <ul className="entity-list">
           {characters.map((character) => (
-            <li key={character.character_id}>
-              <Link to={`/app/characters/${character.character_id}`}>
-                <strong>{character.name}</strong>
-              </Link>
-              {character.class_name && ` - ${character.class_name}`}
-              {` (Lvl ${character.level})`}
-              {" "}
-              {character.campaign_id ? (
-                <span>
-                  In: {character.campaign_name}{" "}
+            <li className="entity-row" key={character.character_id}>
+              <div className="entity-row-main">
+                <Link to={`/app/characters/${character.character_id}`}>
+                  <strong>{character.name}</strong>
+                </Link>
+                <span className="entity-row-meta">
+                  {character.class_name && `${character.class_name} - `}Lvl {character.level}
+                </span>
+                {character.campaign_id && (
+                  <span className="badge badge-muted">{character.campaign_name}</span>
+                )}
+              </div>
+
+              <div className="entity-row-actions">
+                {character.campaign_id ? (
                   <button type="button" onClick={() => handleLeave(character.character_id)}>
-                    Leave
+                    Leave Campaign
                   </button>
-                </span>
-              ) : (
-                <span>
-                  <input
-                    type="text"
-                    placeholder="Invite code"
-                    value={inviteCodes[character.character_id] || ""}
-                    onChange={(event) =>
-                      setInviteCodes({
-                        ...inviteCodes,
-                        [character.character_id]: event.target.value,
-                      })
-                    }
-                  />
-                  <button type="button" onClick={() => handleJoin(character.character_id)}>
-                    Join Campaign
-                  </button>
-                </span>
-              )}
-              {" "}
-              <button type="button" onClick={() => handleDelete(character.character_id)}>Delete</button>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Invite code"
+                      value={inviteCodes[character.character_id] || ""}
+                      onChange={(event) =>
+                        setInviteCodes({
+                          ...inviteCodes,
+                          [character.character_id]: event.target.value,
+                        })
+                      }
+                    />
+                    <button type="button" onClick={() => handleJoin(character.character_id)}>
+                      Join Campaign
+                    </button>
+                  </>
+                )}
+                <button className="button-danger" type="button" onClick={() => handleDelete(character.character_id)}>
+                  Delete
+                </button>
+              </div>
             </li>
           ))}
         </ul>
       </section>
-    </main>
+    </>
   );
 }
 

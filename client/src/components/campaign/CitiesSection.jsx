@@ -60,34 +60,24 @@ function CitiesSection({ campaignId, isGm }) {
   }
 
   return (
-    <section>
+    <section className="panel">
       <h2>Cities</h2>
       {error && <p className="form-error">{error}</p>}
 
-      {isGm && (
-        <form onSubmit={handleCreate}>
-          <div className="form-field">
-            <label htmlFor="city-name">Name</label>
-            <input id="city-name" type="text" value={name} onChange={(event) => setName(event.target.value)} />
-          </div>
-          <div className="form-field">
-            <label htmlFor="city-region">Region</label>
-            <input id="city-region" type="text" value={region} onChange={(event) => setRegion(event.target.value)} />
-          </div>
-          <button className="button button-primary" type="submit">Add City</button>
-        </form>
-      )}
+      {cities.length === 0 && <p className="entity-empty">No cities yet.</p>}
 
-      {cities.length === 0 && <p>No cities yet.</p>}
-
-      <ul>
+      <ul className="entity-list">
         {cities.map((city) => (
-          <li key={city.city_id}>
-            <strong>{city.name}</strong>
-            {city.region && ` (${city.region})`}
+          <li className="entity-row" key={city.city_id}>
+            <div className="entity-row-main">
+              <strong>{city.name}</strong>
+              {city.region && <span className="entity-row-meta">{city.region}</span>}
+            </div>
             {isGm && (
-              <>
-                {" "}
+              <div className="entity-row-actions">
+                <span className={`badge ${city.visible_to_players ? "badge-success" : "badge-muted"}`}>
+                  {city.visible_to_players ? "Visible" : "Hidden"}
+                </span>
                 <label>
                   <input
                     type="checkbox"
@@ -96,13 +86,20 @@ function CitiesSection({ campaignId, isGm }) {
                   />
                   Visible to players
                 </label>
-                {" "}
-                <button type="button" onClick={() => handleDelete(city.city_id)}>Delete</button>
-              </>
+                <button className="button-danger" type="button" onClick={() => handleDelete(city.city_id)}>Delete</button>
+              </div>
             )}
           </li>
         ))}
       </ul>
+
+      {isGm && (
+        <form className="inline-form" onSubmit={handleCreate}>
+          <input placeholder="City name" type="text" value={name} onChange={(event) => setName(event.target.value)} />
+          <input placeholder="Region (optional)" type="text" value={region} onChange={(event) => setRegion(event.target.value)} />
+          <button className="button button-primary" type="submit">Add City</button>
+        </form>
+      )}
     </section>
   );
 }

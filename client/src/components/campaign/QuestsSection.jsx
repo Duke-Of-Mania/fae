@@ -185,99 +185,97 @@ function QuestsSection({ campaignId, isGm }) {
     }
   }
 
+  function statusBadgeClass(status) {
+    if (status === "active") return "badge badge-success";
+    if (status === "resolved") return "badge badge-muted";
+    return "badge";
+  }
+
   return (
-    <section>
+    <section className="panel">
       <h2>Quests</h2>
       {error && <p className="form-error">{error}</p>}
 
-      {isGm && (
-        <form onSubmit={handleCreateQuest}>
-          <div className="form-field">
-            <label htmlFor="quest-title">Title</label>
-            <input id="quest-title" type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
-          </div>
-          <button className="button button-primary" type="submit">Add Quest</button>
-        </form>
-      )}
+      {quests.length === 0 && <p className="entity-empty">No quests yet.</p>}
 
-      {quests.length === 0 && <p>No quests yet.</p>}
-
-      <ul>
+      <ul className="entity-list">
         {quests.map((quest) => (
-          <li key={quest.quest_id}>
-            <strong>{quest.title}</strong> ({quest.status})
-            {" "}
-            <button type="button" onClick={() => toggleQuestHooks(quest.quest_id)}>
-              {expandedQuestId === quest.quest_id ? "Hide Hooks" : "Show Hooks"}
-            </button>
-            {isGm && (
-              <>
-                {" "}
-                <label>
-                  <input type="checkbox" checked={quest.visible_to_players} onChange={() => toggleQuestVisible(quest)} />
-                  Visible to players
-                </label>
-                {" "}
-                <button type="button" onClick={() => handleDeleteQuest(quest.quest_id)}>Delete</button>
-              </>
-            )}
+          <li className="entity-row" key={quest.quest_id}>
+            <div className="entity-row-main">
+              <strong>{quest.title}</strong>
+              <span className={statusBadgeClass(quest.status)}>{quest.status}</span>
+            </div>
+
+            <div className="entity-row-actions">
+              <button type="button" onClick={() => toggleQuestHooks(quest.quest_id)}>
+                {expandedQuestId === quest.quest_id ? "Hide Hooks" : "Show Hooks"}
+              </button>
+              {isGm && (
+                <>
+                  <span className={`badge ${quest.visible_to_players ? "badge-success" : "badge-muted"}`}>
+                    {quest.visible_to_players ? "Visible" : "Hidden"}
+                  </span>
+                  <label>
+                    <input type="checkbox" checked={quest.visible_to_players} onChange={() => toggleQuestVisible(quest)} />
+                    Visible to players
+                  </label>
+                  <button className="button-danger" type="button" onClick={() => handleDeleteQuest(quest.quest_id)}>Delete</button>
+                </>
+              )}
+            </div>
 
             {expandedQuestId === quest.quest_id && (
-              <div>
-                {isGm && (
-                  <form onSubmit={(event) => handleCreateHook(event, quest.quest_id)}>
-                    <input
-                      type="text"
-                      placeholder="Hook title"
-                      value={hookTitle}
-                      onChange={(event) => setHookTitle(event.target.value)}
-                    />
-                    <button type="submit">Add Hook</button>
-                  </form>
-                )}
+              <div className="entity-nested">
+                <h3>Hooks</h3>
 
-                {hooks.length === 0 && <p>No hooks yet.</p>}
+                {hooks.length === 0 && <p className="entity-empty">No hooks yet.</p>}
 
-                <ul>
+                <ul className="entity-list">
                   {hooks.map((hook) => (
-                    <li key={hook.hook_id}>
-                      {hook.title} ({hook.status})
-                      {" "}
-                      <button type="button" onClick={() => toggleHookLinks(hook.hook_id)}>
-                        {expandedHookId === hook.hook_id ? "Hide Links" : "Show Links"}
-                      </button>
-                      {isGm && (
-                        <>
-                          {" "}
-                          <label>
-                            <input
-                              type="checkbox"
-                              checked={hook.visible_to_players}
-                              onChange={() => toggleHookVisible(hook, quest.quest_id)}
-                            />
-                            Visible to players
-                          </label>
-                          {" "}
-                          <button type="button" onClick={() => handleDeleteHook(hook.hook_id, quest.quest_id)}>Delete</button>
-                        </>
-                      )}
+                    <li className="entity-row" key={hook.hook_id}>
+                      <div className="entity-row-main">
+                        <span>{hook.title}</span>
+                        <span className={statusBadgeClass(hook.status)}>{hook.status}</span>
+                      </div>
+
+                      <div className="entity-row-actions">
+                        <button type="button" onClick={() => toggleHookLinks(hook.hook_id)}>
+                          {expandedHookId === hook.hook_id ? "Hide Links" : "Show Links"}
+                        </button>
+                        {isGm && (
+                          <>
+                            <span className={`badge ${hook.visible_to_players ? "badge-success" : "badge-muted"}`}>
+                              {hook.visible_to_players ? "Visible" : "Hidden"}
+                            </span>
+                            <label>
+                              <input
+                                type="checkbox"
+                                checked={hook.visible_to_players}
+                                onChange={() => toggleHookVisible(hook, quest.quest_id)}
+                              />
+                              Visible to players
+                            </label>
+                            <button className="button-danger" type="button" onClick={() => handleDeleteHook(hook.hook_id, quest.quest_id)}>Delete</button>
+                          </>
+                        )}
+                      </div>
 
                       {expandedHookId === hook.hook_id && hookDetail && (
-                        <div>
-                          <p>NPCs involved:</p>
-                          <ul>
+                        <div className="entity-nested">
+                          <h3>NPCs Involved</h3>
+                          <ul className="entity-list">
                             {hookDetail.npcs.map((npc) => (
-                              <li key={npc.npc_id}>
-                                {npc.name}
+                              <li className="entity-row" key={npc.npc_id}>
+                                <span>{npc.name}</span>
                                 {isGm && (
-                                  <button type="button" onClick={() => handleUnlinkNpc(hook.hook_id, npc.npc_id)}>Unlink</button>
+                                  <button className="button-danger" type="button" onClick={() => handleUnlinkNpc(hook.hook_id, npc.npc_id)}>Unlink</button>
                                 )}
                               </li>
                             ))}
-                            {hookDetail.npcs.length === 0 && <li>None linked.</li>}
+                            {hookDetail.npcs.length === 0 && <li className="entity-empty">None linked.</li>}
                           </ul>
                           {isGm && (
-                            <div>
+                            <div className="inline-form">
                               <select value={linkNpcId} onChange={(event) => setLinkNpcId(event.target.value)}>
                                 <option value="">Select NPC...</option>
                                 {npcs.map((npc) => (
@@ -288,20 +286,20 @@ function QuestsSection({ campaignId, isGm }) {
                             </div>
                           )}
 
-                          <p>Cities involved:</p>
-                          <ul>
+                          <h3>Cities Involved</h3>
+                          <ul className="entity-list">
                             {hookDetail.cities.map((city) => (
-                              <li key={city.city_id}>
-                                {city.name}
+                              <li className="entity-row" key={city.city_id}>
+                                <span>{city.name}</span>
                                 {isGm && (
-                                  <button type="button" onClick={() => handleUnlinkCity(hook.hook_id, city.city_id)}>Unlink</button>
+                                  <button className="button-danger" type="button" onClick={() => handleUnlinkCity(hook.hook_id, city.city_id)}>Unlink</button>
                                 )}
                               </li>
                             ))}
-                            {hookDetail.cities.length === 0 && <li>None linked.</li>}
+                            {hookDetail.cities.length === 0 && <li className="entity-empty">None linked.</li>}
                           </ul>
                           {isGm && (
-                            <div>
+                            <div className="inline-form">
                               <select value={linkCityId} onChange={(event) => setLinkCityId(event.target.value)}>
                                 <option value="">Select city...</option>
                                 {cities.map((city) => (
@@ -316,11 +314,30 @@ function QuestsSection({ campaignId, isGm }) {
                     </li>
                   ))}
                 </ul>
+
+                {isGm && (
+                  <form className="inline-form" onSubmit={(event) => handleCreateHook(event, quest.quest_id)}>
+                    <input
+                      type="text"
+                      placeholder="Hook title"
+                      value={hookTitle}
+                      onChange={(event) => setHookTitle(event.target.value)}
+                    />
+                    <button type="submit">Add Hook</button>
+                  </form>
+                )}
               </div>
             )}
           </li>
         ))}
       </ul>
+
+      {isGm && (
+        <form className="inline-form" onSubmit={handleCreateQuest}>
+          <input placeholder="Quest title" type="text" value={title} onChange={(event) => setTitle(event.target.value)} />
+          <button className="button button-primary" type="submit">Add Quest</button>
+        </form>
+      )}
     </section>
   );
 }

@@ -12,19 +12,21 @@ import { useAuth } from "../context/AuthContext";
  */
 function AppLayout() {
     const {currentUser, handleLogout} = useAuth();
-    
+
   return (
-    <div>
-      <header>
-        <nav>
-          <strong>FAE</strong>
+    <div className="page-layout">
+      <header className="app-header">
+        <nav className="app-nav">
+          <span className="app-logo">FAE</span>
 
           <Link to="/app">Dashboard</Link>
 
           <Link to="/app/campaigns">Campaigns</Link>
 
           <Link to="/app/characters">Characters</Link>
+        </nav>
 
+        <div className="app-user">
           <span>
             Logged in as {currentUser.username}
           </span>
@@ -32,11 +34,11 @@ function AppLayout() {
           <button type="button" onClick={handleLogout}>
             Logout
           </button>
-        </nav>
+        </div>
       </header>
 
-      <main>
-        {/* 
+      <main className="app-main">
+        {/*
           React Router renders the matched child route here.
         */}
         <Outlet />

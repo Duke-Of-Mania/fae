@@ -156,24 +156,29 @@ function CharacterDetail() {
 
   if (error && !character) {
     return (
-      <main>
+      <>
         <p className="form-error">{error}</p>
-        <Link to="/app/characters">Back to Characters</Link>
-      </main>
+        <Link className="back-link" to="/app/characters">&larr; Back to Characters</Link>
+      </>
     );
   }
 
   const isOwner = character.role === "owner";
 
   return (
-    <main>
-      <Link to="/app/characters">Back to Characters</Link>
-
-      <h1>{character.name}</h1>
+    <>
+      <div>
+        <Link className="back-link" to="/app/characters">&larr; Back to Characters</Link>
+        <div className="panel-header">
+          <h1>{character.name}</h1>
+          <span className="badge badge-muted">{isOwner ? "Your character" : "Viewing as GM"}</span>
+        </div>
+      </div>
 
       {error && <p className="form-error">{error}</p>}
 
-      {isOwner ? (
+      <section className="panel">
+        {isOwner ? (
         <form onSubmit={handleSave}>
           <div className="form-field">
             <label htmlFor="name">Name</label>
@@ -208,32 +213,38 @@ function CharacterDetail() {
             <textarea id="notes" value={notes} onChange={(event) => setNotes(event.target.value)} />
           </div>
           <button className="button button-primary" type="submit">Save Changes</button>
+          {" "}
+          <button className="button-danger" type="button" onClick={handleDelete}>Delete Character</button>
         </form>
       ) : (
-        <section>
+        <>
           <p>{className && `${className} - `}{ancestry && `${ancestry} - `}Level {level}</p>
           {appearance && <p><strong>Appearance:</strong> {appearance}</p>}
           {personality && <p><strong>Personality:</strong> {personality}</p>}
           {backstory && <p><strong>Backstory:</strong> {backstory}</p>}
           {notes && <p><strong>Notes:</strong> {notes}</p>}
-        </section>
+        </>
       )}
+      </section>
 
-      <section>
+      <section className="panel">
         <h2>Stats</h2>
-        <ul>
+        <ul className="entity-list">
           {character.stats.map((stat) => (
-            <li key={stat.stat_name}>
-              {stat.stat_name}: {stat.stat_value}
+            <li className="entity-row" key={stat.stat_name}>
+              <div className="entity-row-main">
+                <strong>{stat.stat_name}</strong>
+                <span className="entity-row-meta">{stat.stat_value}</span>
+              </div>
               {isOwner && (
-                <button type="button" onClick={() => handleRemoveStat(stat.stat_name)}>Remove</button>
+                <button className="button-danger" type="button" onClick={() => handleRemoveStat(stat.stat_name)}>Remove</button>
               )}
             </li>
           ))}
-          {character.stats.length === 0 && <li>None yet.</li>}
+          {character.stats.length === 0 && <li className="entity-empty">None yet.</li>}
         </ul>
         {isOwner && (
-          <form onSubmit={handleAddStat}>
+          <form className="inline-form" onSubmit={handleAddStat}>
             <input type="text" placeholder="Stat name (e.g. Strength)" value={statName} onChange={(event) => setStatName(event.target.value)} />
             <input type="text" placeholder="Value (e.g. 15)" value={statValue} onChange={(event) => setStatValue(event.target.value)} />
             <button type="submit">Add/Update Stat</button>
@@ -241,21 +252,24 @@ function CharacterDetail() {
         )}
       </section>
 
-      <section>
+      <section className="panel">
         <h2>Resources</h2>
-        <ul>
+        <ul className="entity-list">
           {character.resources.map((resource) => (
-            <li key={resource.resource_name}>
-              {resource.resource_name}: {resource.current_value ?? "?"}/{resource.max_value ?? "?"}
+            <li className="entity-row" key={resource.resource_name}>
+              <div className="entity-row-main">
+                <strong>{resource.resource_name}</strong>
+                <span className="entity-row-meta">{resource.current_value ?? "?"}/{resource.max_value ?? "?"}</span>
+              </div>
               {isOwner && (
-                <button type="button" onClick={() => handleRemoveResource(resource.resource_name)}>Remove</button>
+                <button className="button-danger" type="button" onClick={() => handleRemoveResource(resource.resource_name)}>Remove</button>
               )}
             </li>
           ))}
-          {character.resources.length === 0 && <li>None yet.</li>}
+          {character.resources.length === 0 && <li className="entity-empty">None yet.</li>}
         </ul>
         {isOwner && (
-          <form onSubmit={handleAddResource}>
+          <form className="inline-form" onSubmit={handleAddResource}>
             <input type="text" placeholder="Resource name (e.g. Hit Points)" value={resourceName} onChange={(event) => setResourceName(event.target.value)} />
             <input type="number" placeholder="Current" value={resourceCurrent} onChange={(event) => setResourceCurrent(event.target.value)} />
             <input type="number" placeholder="Max" value={resourceMax} onChange={(event) => setResourceMax(event.target.value)} />
@@ -263,11 +277,7 @@ function CharacterDetail() {
           </form>
         )}
       </section>
-
-      {isOwner && (
-        <button type="button" onClick={handleDelete}>Delete Character</button>
-      )}
-    </main>
+    </>
   );
 }
 

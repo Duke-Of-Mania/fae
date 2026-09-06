@@ -71,49 +71,26 @@ function NpcsSection({ campaignId, isGm }) {
   }
 
   return (
-    <section>
+    <section className="panel">
       <h2>NPCs</h2>
       {error && <p className="form-error">{error}</p>}
 
-      {isGm && (
-        <form onSubmit={handleCreate}>
-          <div className="form-field">
-            <label htmlFor="npc-name">Name</label>
-            <input id="npc-name" type="text" value={name} onChange={(event) => setName(event.target.value)} />
-          </div>
-          <div className="form-field">
-            <label htmlFor="npc-role">Role</label>
-            <input id="npc-role" type="text" value={role} onChange={(event) => setRole(event.target.value)} />
-          </div>
-          <div className="form-field">
-            <label htmlFor="npc-disposition">Disposition</label>
-            <input id="npc-disposition" type="text" value={disposition} onChange={(event) => setDisposition(event.target.value)} />
-          </div>
-          <div className="form-field">
-            <label htmlFor="npc-city">City</label>
-            <select id="npc-city" value={cityId} onChange={(event) => setCityId(event.target.value)}>
-              <option value="">(none)</option>
-              {cities.map((city) => (
-                <option key={city.city_id} value={city.city_id}>{city.name}</option>
-              ))}
-            </select>
-          </div>
-          <button className="button button-primary" type="submit">Add NPC</button>
-        </form>
-      )}
+      {npcs.length === 0 && <p className="entity-empty">No NPCs yet.</p>}
 
-      {npcs.length === 0 && <p>No NPCs yet.</p>}
-
-      <ul>
+      <ul className="entity-list">
         {npcs.map((npc) => (
-          <li key={npc.npc_id}>
-            <strong>{npc.name}</strong>
-            {npc.role && ` - ${npc.role}`}
-            {npc.disposition && ` (${npc.disposition})`}
-            {npc.city_id && ` @ ${cityName(npc.city_id) || "?"}`}
+          <li className="entity-row" key={npc.npc_id}>
+            <div className="entity-row-main">
+              <strong>{npc.name}</strong>
+              <span className="entity-row-meta">
+                {[npc.role, npc.disposition, npc.city_id && cityName(npc.city_id)].filter(Boolean).join(" · ")}
+              </span>
+            </div>
             {isGm && (
-              <>
-                {" "}
+              <div className="entity-row-actions">
+                <span className={`badge ${npc.visible_to_players ? "badge-success" : "badge-muted"}`}>
+                  {npc.visible_to_players ? "Visible" : "Hidden"}
+                </span>
                 <label>
                   <input
                     type="checkbox"
@@ -122,13 +99,27 @@ function NpcsSection({ campaignId, isGm }) {
                   />
                   Visible to players
                 </label>
-                {" "}
-                <button type="button" onClick={() => handleDelete(npc.npc_id)}>Delete</button>
-              </>
+                <button className="button-danger" type="button" onClick={() => handleDelete(npc.npc_id)}>Delete</button>
+              </div>
             )}
           </li>
         ))}
       </ul>
+
+      {isGm && (
+        <form className="inline-form" onSubmit={handleCreate}>
+          <input placeholder="NPC name" type="text" value={name} onChange={(event) => setName(event.target.value)} />
+          <input placeholder="Role (optional)" type="text" value={role} onChange={(event) => setRole(event.target.value)} />
+          <input placeholder="Disposition (optional)" type="text" value={disposition} onChange={(event) => setDisposition(event.target.value)} />
+          <select value={cityId} onChange={(event) => setCityId(event.target.value)}>
+            <option value="">(no city)</option>
+            {cities.map((city) => (
+              <option key={city.city_id} value={city.city_id}>{city.name}</option>
+            ))}
+          </select>
+          <button className="button button-primary" type="submit">Add NPC</button>
+        </form>
+      )}
     </section>
   );
 }

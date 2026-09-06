@@ -84,31 +84,39 @@ function CampaignDetail() {
 
   if (error && !campaign) {
     return (
-      <main>
+      <>
         <p className="form-error">{error}</p>
-        <Link to="/app/campaigns">Back to Campaigns</Link>
-      </main>
+        <Link className="back-link" to="/app/campaigns">&larr; Back to Campaigns</Link>
+      </>
     );
   }
 
   const isGm = campaign.role === "gm";
 
   return (
-    <main>
-      <Link to="/app/campaigns">Back to Campaigns</Link>
-
-      <h1>{campaign.name}</h1>
-
-      {isGm && <p>Invite code: {campaign.invite_code}</p>}
+    <>
+      <div>
+        <Link className="back-link" to="/app/campaigns">&larr; Back to Campaigns</Link>
+        <div className="panel-header">
+          <h1>{campaign.name}</h1>
+          <div className="entity-row-actions">
+            <span className={`badge ${campaign.status === "active" ? "badge-success" : "badge-muted"}`}>
+              {campaign.status}
+            </span>
+            <span className="badge badge-muted">{isGm ? "GM" : "Player"}</span>
+            {isGm && <span className="badge badge-muted">Invite: {campaign.invite_code}</span>}
+          </div>
+        </div>
+      </div>
 
       {error && <p className="form-error">{error}</p>}
 
-      <section>
+      <section className="panel">
         <h2>Roster</h2>
-        {roster.length === 0 && <p>No characters yet.</p>}
-        <ul>
+        {roster.length === 0 && <p className="entity-empty">No characters yet.</p>}
+        <ul className="entity-list">
           {roster.map((character) => (
-            <li key={character.character_id}>
+            <li className="entity-row" key={character.character_id}>
               <Link to={`/app/characters/${character.character_id}`}>{character.name}</Link>
             </li>
           ))}
@@ -116,73 +124,74 @@ function CampaignDetail() {
       </section>
 
       {isGm ? (
-        <form onSubmit={handleSave}>
-          <div className="form-field">
-            <label htmlFor="name">Name</label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-            />
-          </div>
+        <section className="panel">
+          <h2>Overview</h2>
+          <form onSubmit={handleSave}>
+            <div className="form-field">
+              <label htmlFor="name">Name</label>
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </div>
 
-          <div className="form-field">
-            <label htmlFor="overview">Overview</label>
-            <textarea
-              id="overview"
-              value={overview}
-              onChange={(event) => setOverview(event.target.value)}
-            />
-          </div>
+            <div className="form-field">
+              <label htmlFor="overview">Overview</label>
+              <textarea
+                id="overview"
+                value={overview}
+                onChange={(event) => setOverview(event.target.value)}
+              />
+            </div>
 
-          <div className="form-field">
-            <label htmlFor="worldOverview">World Overview</label>
-            <textarea
-              id="worldOverview"
-              value={worldOverview}
-              onChange={(event) => setWorldOverview(event.target.value)}
-            />
-          </div>
+            <div className="form-field">
+              <label htmlFor="worldOverview">World Overview</label>
+              <textarea
+                id="worldOverview"
+                value={worldOverview}
+                onChange={(event) => setWorldOverview(event.target.value)}
+              />
+            </div>
 
-          <div className="form-field">
-            <label htmlFor="status">Status</label>
-            <select
-              id="status"
-              value={status}
-              onChange={(event) => setStatus(event.target.value)}
-            >
-              <option value="active">Active</option>
-              <option value="paused">Paused</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
+            <div className="form-field">
+              <label htmlFor="status">Status</label>
+              <select
+                id="status"
+                value={status}
+                onChange={(event) => setStatus(event.target.value)}
+              >
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
 
-          <button className="button button-primary" type="submit">
-            Save Changes
-          </button>
-        </form>
+            <button className="button button-primary" type="submit">
+              Save Changes
+            </button>
+            {" "}
+            <button className="button-danger" type="button" onClick={handleDelete}>
+              Delete Campaign
+            </button>
+          </form>
+        </section>
       ) : (
-        <section>
+        <section className="panel">
           <h2>Overview</h2>
           <p>{campaign.overview}</p>
 
-          <h2>World Overview</h2>
+          <h3>World Overview</h3>
           <p>{campaign.world_overview}</p>
         </section>
-      )}
-
-      {isGm && (
-        <button type="button" onClick={handleDelete}>
-          Delete Campaign
-        </button>
       )}
 
       <CitiesSection campaignId={campaignId} isGm={isGm} />
       <NpcsSection campaignId={campaignId} isGm={isGm} />
       <ShopsSection campaignId={campaignId} isGm={isGm} />
       <QuestsSection campaignId={campaignId} isGm={isGm} />
-    </main>
+    </>
   );
 }
 

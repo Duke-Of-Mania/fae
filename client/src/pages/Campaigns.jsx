@@ -47,12 +47,14 @@ function Campaigns() {
   }
 
   return (
-    <main>
-      <h1>Campaigns</h1>
+    <>
+      <div className="panel-header">
+        <h1>Campaigns</h1>
+      </div>
 
       {error && <p className="form-error">{error}</p>}
 
-      <section>
+      <section className="panel">
         <h2>New Campaign</h2>
 
         <form onSubmit={handleCreate}>
@@ -84,26 +86,32 @@ function Campaigns() {
         </form>
       </section>
 
-      <section>
+      <section className="panel">
         <h2>Your Campaigns</h2>
 
         {loading && <p>Loading campaigns...</p>}
 
-        {!loading && campaigns.length === 0 && <p>No campaigns yet.</p>}
+        {!loading && campaigns.length === 0 && <p className="entity-empty">No campaigns yet.</p>}
 
-        <ul>
+        <ul className="entity-list">
           {campaigns.map((campaign) => (
-            <li key={campaign.campaign_id}>
-              <Link to={`/app/campaigns/${campaign.campaign_id}`}>
-                {campaign.name}
-              </Link>
-              {" "}
-              <span>({campaign.status}, {campaign.role === "gm" ? "GM" : "Player"})</span>
+            <li className="entity-row" key={campaign.campaign_id}>
+              <div className="entity-row-main">
+                <Link to={`/app/campaigns/${campaign.campaign_id}`}>
+                  {campaign.name}
+                </Link>
+                <span className={`badge ${campaign.status === "active" ? "badge-success" : "badge-muted"}`}>
+                  {campaign.status}
+                </span>
+                <span className="badge badge-muted">
+                  {campaign.role === "gm" ? "GM" : "Player"}
+                </span>
+              </div>
             </li>
           ))}
         </ul>
       </section>
-    </main>
+    </>
   );
 }
 

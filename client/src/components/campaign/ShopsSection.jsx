@@ -154,110 +154,66 @@ function ShopsSection({ campaignId, isGm }) {
   }
 
   return (
-    <section>
+    <section className="panel">
       <h2>Shops</h2>
       {error && <p className="form-error">{error}</p>}
 
-      {isGm && (
-        <>
-          <form onSubmit={handleCreateShop}>
-            <div className="form-field">
-              <label htmlFor="shop-name">Name</label>
-              <input id="shop-name" type="text" value={name} onChange={(event) => setName(event.target.value)} />
-            </div>
-            <div className="form-field">
-              <label htmlFor="shop-type">Type</label>
-              <input id="shop-type" type="text" value={shopType} onChange={(event) => setShopType(event.target.value)} />
-            </div>
-            <div className="form-field">
-              <label htmlFor="shop-city">City</label>
-              <select id="shop-city" value={cityId} onChange={(event) => setCityId(event.target.value)}>
-                <option value="">(none)</option>
-                {cities.map((city) => (
-                  <option key={city.city_id} value={city.city_id}>{city.name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="form-field">
-              <label htmlFor="shop-owner">Owner NPC</label>
-              <select id="shop-owner" value={ownerNpcId} onChange={(event) => setOwnerNpcId(event.target.value)}>
-                <option value="">(none)</option>
-                {npcs.map((npc) => (
-                  <option key={npc.npc_id} value={npc.npc_id}>{npc.name}</option>
-                ))}
-              </select>
-            </div>
-            <button className="button button-primary" type="submit">Add Shop</button>
-          </form>
+      {shops.length === 0 && <p className="entity-empty">No shops yet.</p>}
 
-          <h3>Item Catalog</h3>
-          <form onSubmit={handleCreateItem}>
-            <div className="form-field">
-              <label htmlFor="item-name">Item name</label>
-              <input id="item-name" type="text" value={itemName} onChange={(event) => setItemName(event.target.value)} />
-            </div>
-            <div className="form-field">
-              <label htmlFor="item-value">Value</label>
-              <input id="item-value" type="number" step="0.01" value={itemValue} onChange={(event) => setItemValue(event.target.value)} />
-            </div>
-            <button type="submit">Add Item</button>
-          </form>
-          <ul>
-            {items.map((item) => (
-              <li key={item.item_id}>{item.name} {item.value != null && `(${item.value})`}</li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      {shops.length === 0 && <p>No shops yet.</p>}
-
-      <ul>
+      <ul className="entity-list">
         {shops.map((shop) => (
-          <li key={shop.shop_id}>
-            <strong>{shop.name}</strong>
-            {shop.shop_type && ` - ${shop.shop_type}`}
-            {shop.city_id && ` @ ${cityName(shop.city_id) || "?"}`}
-            {shop.owner_npc_id && ` (owner: ${npcName(shop.owner_npc_id) || "?"})`}
-            {" "}
-            <button type="button" onClick={() => toggleInventory(shop.shop_id)}>
-              {expandedShopId === shop.shop_id ? "Hide Inventory" : "Show Inventory"}
-            </button>
-            {isGm && (
-              <>
-                {" "}
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={shop.visible_to_players}
-                    onChange={() => toggleVisible(shop)}
-                  />
-                  Visible to players
-                </label>
-                {" "}
-                <button type="button" onClick={() => handleDeleteShop(shop.shop_id)}>Delete</button>
-              </>
-            )}
+          <li className="entity-row" key={shop.shop_id}>
+            <div className="entity-row-main">
+              <strong>{shop.name}</strong>
+              <span className="entity-row-meta">
+                {[shop.shop_type, shop.city_id && cityName(shop.city_id), shop.owner_npc_id && `owned by ${npcName(shop.owner_npc_id) || "?"}`]
+                  .filter(Boolean).join(" · ")}
+              </span>
+            </div>
+
+            <div className="entity-row-actions">
+              <button type="button" onClick={() => toggleInventory(shop.shop_id)}>
+                {expandedShopId === shop.shop_id ? "Hide Inventory" : "Show Inventory"}
+              </button>
+              {isGm && (
+                <>
+                  <span className={`badge ${shop.visible_to_players ? "badge-success" : "badge-muted"}`}>
+                    {shop.visible_to_players ? "Visible" : "Hidden"}
+                  </span>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={shop.visible_to_players}
+                      onChange={() => toggleVisible(shop)}
+                    />
+                    Visible to players
+                  </label>
+                  <button className="button-danger" type="button" onClick={() => handleDeleteShop(shop.shop_id)}>Delete</button>
+                </>
+              )}
+            </div>
 
             {expandedShopId === shop.shop_id && (
-              <div>
-                <ul>
+              <div className="entity-nested">
+                <ul className="entity-list">
                   {inventory.map((line) => (
-                    <li key={line.item_id}>
-                      {line.name} - qty {line.quantity}, {line.sell_price != null ? `${line.sell_price}gp` : "no price"}
+                    <li className="entity-row" key={line.item_id}>
+                      <div className="entity-row-main">
+                        <span>{line.name}</span>
+                        <span className="entity-row-meta">
+                          qty {line.quantity} · {line.sell_price != null ? `${line.sell_price}gp` : "no price"}
+                        </span>
+                      </div>
                       {isGm && (
-                        <>
-                          {" "}
-                          <button type="button" onClick={() => handleRemoveInventory(shop.shop_id, line.item_id)}>Remove</button>
-                        </>
+                        <button className="button-danger" type="button" onClick={() => handleRemoveInventory(shop.shop_id, line.item_id)}>Remove</button>
                       )}
                     </li>
                   ))}
-                  {inventory.length === 0 && <li>Empty.</li>}
+                  {inventory.length === 0 && <li className="entity-empty">Empty.</li>}
                 </ul>
 
                 {isGm && (
-                  <form onSubmit={(event) => handleAddInventory(event, shop.shop_id)}>
+                  <form className="inline-form" onSubmit={(event) => handleAddInventory(event, shop.shop_id)}>
                     <select value={invItemId} onChange={(event) => setInvItemId(event.target.value)}>
                       <option value="">Select item...</option>
                       {items.map((item) => (
@@ -266,7 +222,7 @@ function ShopsSection({ campaignId, isGm }) {
                     </select>
                     <input type="number" placeholder="Qty" value={invQuantity} onChange={(event) => setInvQuantity(event.target.value)} />
                     <input type="number" step="0.01" placeholder="Sell price" value={invSellPrice} onChange={(event) => setInvSellPrice(event.target.value)} />
-                    <button type="submit">Add to Inventory</button>
+                    <button className="button button-primary" type="submit">Add to Inventory</button>
                   </form>
                 )}
               </div>
@@ -274,6 +230,48 @@ function ShopsSection({ campaignId, isGm }) {
           </li>
         ))}
       </ul>
+
+      {isGm && (
+        <form className="inline-form" onSubmit={handleCreateShop}>
+          <input placeholder="Shop name" type="text" value={name} onChange={(event) => setName(event.target.value)} />
+          <input placeholder="Type (optional)" type="text" value={shopType} onChange={(event) => setShopType(event.target.value)} />
+          <select value={cityId} onChange={(event) => setCityId(event.target.value)}>
+            <option value="">(no city)</option>
+            {cities.map((city) => (
+              <option key={city.city_id} value={city.city_id}>{city.name}</option>
+            ))}
+          </select>
+          <select value={ownerNpcId} onChange={(event) => setOwnerNpcId(event.target.value)}>
+            <option value="">(no owner)</option>
+            {npcs.map((npc) => (
+              <option key={npc.npc_id} value={npc.npc_id}>{npc.name}</option>
+            ))}
+          </select>
+          <button className="button button-primary" type="submit">Add Shop</button>
+        </form>
+      )}
+
+      {isGm && (
+        <>
+          <h3>Item Catalog</h3>
+          <ul className="entity-list">
+            {items.map((item) => (
+              <li className="entity-row" key={item.item_id}>
+                <div className="entity-row-main">
+                  <span>{item.name}</span>
+                  {item.value != null && <span className="entity-row-meta">{item.value}gp</span>}
+                </div>
+              </li>
+            ))}
+            {items.length === 0 && <li className="entity-empty">No items yet.</li>}
+          </ul>
+          <form className="inline-form" onSubmit={handleCreateItem}>
+            <input placeholder="Item name" type="text" value={itemName} onChange={(event) => setItemName(event.target.value)} />
+            <input placeholder="Value" type="number" step="0.01" value={itemValue} onChange={(event) => setItemValue(event.target.value)} />
+            <button type="submit">Add Item</button>
+          </form>
+        </>
+      )}
     </section>
   );
 }

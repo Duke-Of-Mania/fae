@@ -235,3 +235,285 @@ a {
   text-align: center;
   color: #aaa3b2;
 }
+
+
+/* --------------------------------------------------
+   Global form controls
+   -------------------------------------------------- */
+
+/* Baseline dark-theme styling for every input/select/textarea/
+   button, not just ones wrapped in .form-field - several app
+   sections use compact inline forms outside that wrapper. */
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  font-size: 1rem;
+  color: #f2ede4;
+}
+
+input,
+select,
+textarea {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #514b5b;
+  border-radius: 4px;
+  background: #17151c;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #aaa3b2;
+  outline-offset: 1px;
+}
+
+textarea {
+  min-height: 5rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #514b5b;
+  border-radius: 4px;
+  background: #2a2631;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: #6d6675;
+}
+
+/* A destructive-action variant, e.g. delete buttons. */
+.button-danger {
+  border-color: #8c5960;
+  color: #f0b9bf;
+  background: transparent;
+}
+
+.button-danger:hover {
+  background: rgba(140, 89, 96, 0.15);
+}
+
+
+/* --------------------------------------------------
+   Authenticated app shell
+   -------------------------------------------------- */
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 3rem;
+  border-bottom: 1px solid #3b3744;
+}
+
+.app-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.75rem;
+}
+
+.app-logo {
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 0.15rem;
+}
+
+.app-nav a {
+  color: #c9c3cc;
+  padding-bottom: 0.2rem;
+  border-bottom: 2px solid transparent;
+}
+
+.app-nav a:hover {
+  color: #f2ede4;
+}
+
+.app-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #aaa3b2;
+  font-size: 0.95rem;
+}
+
+.app-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+
+/* --------------------------------------------------
+   Panels (card-style sections used throughout the app)
+   -------------------------------------------------- */
+
+.panel {
+  padding: 1.75rem;
+  border: 1px solid #3b3744;
+  border-radius: 6px;
+  background: #211e27;
+}
+
+.panel h2 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+}
+
+.panel h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+  color: #c9c3cc;
+}
+
+.panel-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.panel-header h1 {
+  margin: 0;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: #aaa3b2;
+}
+
+.back-link:hover {
+  color: #f2ede4;
+}
+
+
+/* --------------------------------------------------
+   Entity lists (cities, NPCs, shops, quests, characters,
+   campaigns, roster entries, stats, resources, ...)
+   -------------------------------------------------- */
+
+.entity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.entity-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #3b3744;
+}
+
+.entity-list > .entity-row:last-child {
+  border-bottom: none;
+}
+
+.entity-row-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.entity-row-meta {
+  color: #aaa3b2;
+  font-size: 0.9rem;
+}
+
+.entity-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.entity-row-actions label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #aaa3b2;
+  font-weight: normal;
+}
+
+.entity-empty {
+  color: #aaa3b2;
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+/* Nested content under a row, e.g. a shop's inventory or a
+   quest's hooks, expanded in place. */
+.entity-nested {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-left: 1rem;
+  padding: 1rem 1.25rem;
+  border-left: 2px solid #3b3744;
+  background: #17151c;
+  border-radius: 0 4px 4px 0;
+}
+
+
+/* --------------------------------------------------
+   Badges (status/role/visibility labels)
+   -------------------------------------------------- */
+
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border: 1px solid #6d6675;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.03rem;
+  text-transform: uppercase;
+  color: #c9c3cc;
+}
+
+.badge-success {
+  border-color: #5f8c63;
+  color: #bcf0bf;
+}
+
+.badge-muted {
+  border-color: #514b5b;
+  color: #aaa3b2;
+}
+
+
+/* --------------------------------------------------
+   Inline forms (compact add/link forms within a panel)
+   -------------------------------------------------- */
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.inline-form input,
+.inline-form select {
+  flex: 1;
+  min-width: 8rem;
+}
