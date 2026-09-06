@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 
 import { getCampaign, updateCampaign, deleteCampaign, getCampaignRoster } from "../services/campaigns";
+import CitiesSection from "../components/campaign/CitiesSection";
+import NpcsSection from "../components/campaign/NpcsSection";
+import ShopsSection from "../components/campaign/ShopsSection";
+import QuestsSection from "../components/campaign/QuestsSection";
 
 // This component views a single campaign. The GM (owner) can edit
 // and delete it; a player (someone with a character on the roster)
@@ -171,6 +175,11 @@ function CampaignDetail() {
           Delete Campaign
         </button>
       )}
+
+      <CitiesSection campaignId={campaignId} isGm={isGm} />
+      <NpcsSection campaignId={campaignId} isGm={isGm} />
+      <ShopsSection campaignId={campaignId} isGm={isGm} />
+      <QuestsSection campaignId={campaignId} isGm={isGm} />
     </main>
   );
 }
